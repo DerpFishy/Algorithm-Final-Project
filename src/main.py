@@ -5,6 +5,8 @@ from dataset import (
 
 from random_baseline import RandomRouting
 
+from greedy_baseline import GreedyNearestNeighbor
+
 from aco import AntColonyOptimizer
 
 from visualization import (
@@ -87,6 +89,37 @@ for idx, route in enumerate(random_routes):
 print(
     f"\nRandom Total Distance: "
     f"{random_distance:.2f}\n"
+)
+
+# =========================================
+# GREEDY BASELINE
+# =========================================
+
+greedy_solver = GreedyNearestNeighbor(
+    num_customers=NUM_CUSTOMERS,
+    vehicle_capacity=VEHICLE_CAPACITY,
+    distance_matrix=distance_matrix,
+    demands=demands
+)
+
+greedy_routes, greedy_distance = (
+    greedy_solver.run()
+)
+
+print("\n===== GREEDY BASELINE =====")
+
+for idx, route in enumerate(greedy_routes):
+
+    clean_route = [int(x) for x in route]
+
+    print(
+        f"Vehicle {idx+1}: "
+        f"{clean_route}"
+    )
+
+print(
+    f"\nGreedy Total Distance: "
+    f"{greedy_distance:.2f}\n"
 )
 
 # =========================================
