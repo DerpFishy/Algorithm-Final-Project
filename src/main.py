@@ -11,7 +11,8 @@ from aco import AntColonyOptimizer
 
 from visualization import (
     plot_routes,
-    plot_convergence
+    plot_convergence,
+    plot_comparison
 )
 
 # =========================================
@@ -75,22 +76,6 @@ random_routes, random_distance = (
     random_solver.run()
 )
 
-print("\n===== RANDOM BASELINE =====")
-
-for idx, route in enumerate(random_routes):
-
-    clean_route = [int(x) for x in route]
-
-    print(
-        f"Vehicle {idx+1}: "
-        f"{clean_route}"
-    )
-
-print(
-    f"\nRandom Total Distance: "
-    f"{random_distance:.2f}\n"
-)
-
 # =========================================
 # GREEDY BASELINE
 # =========================================
@@ -104,22 +89,6 @@ greedy_solver = GreedyNearestNeighbor(
 
 greedy_routes, greedy_distance = (
     greedy_solver.run()
-)
-
-print("\n===== GREEDY BASELINE =====")
-
-for idx, route in enumerate(greedy_routes):
-
-    clean_route = [int(x) for x in route]
-
-    print(
-        f"Vehicle {idx+1}: "
-        f"{clean_route}"
-    )
-
-print(
-    f"\nGreedy Total Distance: "
-    f"{greedy_distance:.2f}\n"
 )
 
 # =========================================
@@ -140,6 +109,38 @@ best_routes, best_distance, distance_history = (
 # =========================================
 # RESULTS
 # =========================================
+
+print("\n===== RANDOM BASELINE =====")
+
+for idx, route in enumerate(random_routes):
+
+    clean_route = [int(x) for x in route]
+
+    print(
+        f"Vehicle {idx+1}: "
+        f"{clean_route}"
+    )
+
+print(
+    f"\nRandom Total Distance: "
+    f"{random_distance:.2f}\n"
+)
+
+print("\n===== GREEDY BASELINE =====")
+
+for idx, route in enumerate(greedy_routes):
+
+    clean_route = [int(x) for x in route]
+
+    print(
+        f"Vehicle {idx+1}: "
+        f"{clean_route}"
+    )
+
+print(
+    f"\nGreedy Total Distance: "
+    f"{greedy_distance:.2f}\n"
+)
 
 print("\n===== ACO BEST ROUTES =====")
 
@@ -165,4 +166,14 @@ plot_routes(
 
 plot_convergence(
     distance_history
+)
+
+# =========================================
+# COMPARISON CHART
+# =========================================
+
+plot_comparison(
+    random_distance,
+    greedy_distance,
+    best_distance
 )
