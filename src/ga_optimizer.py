@@ -2,75 +2,130 @@ import random
 from aco_optimizer import ACO
 from evaluator import evaluate_solution
 
+
 class GA:
-    def __init__(self, customers, stops, pop_size=10):
+    def __init__(self, customers, stops, pop_size=50):
         self.customers = customers
         self.stops = stops
         self.pop_size = pop_size
         self.aco = ACO()
 
+        self.m = len(stops)
+        self.n = len(customers)
+
+    # ----------------------------
+    # init chromosome
+    # ----------------------------
     def random_chromosome(self):
-        stop_order = [s["id"] for s in self.stops]
+        stop_order = list(range(self.m))
         random.shuffle(stop_order)
 
-        assignment = [random.randint(0, len(self.stops)-1)
-                      for _ in self.customers]
+        assignment = [
+            random.randint(0, self.m - 1)
+            for _ in range(self.n)
+        ]
 
-        return (stop_order, assignment)
+        return stop_order, assignment
 
-    def init_population(self):
-        return [self.random_chromosome() for _ in range(self.pop_size)]
+    # ----------------------------
+    # OX crossover
+    # ----------------------------
+    def crossover_order(self, p1, p2):
+        size = self.m
+        a, b = sorted(random.sample(range(size), 2))
 
-    def run(self, generations=20):
-        pop = self.init_population()
+        child = [-1] * size
+        child[a:b] = p1[a:b]
+
+        fill = [x for x in p2 if x not in child]
+
+        idx = 0
+        for i in range(size):
+            if child[i] == -1:
+                child[i] = fill[idx]
+                idx += 1
+
+        return child
+
+    # ----------------------------
+    # fitness (reduced noise)
+    # ----------------------------
+    def fitness(self, chrom):
+        # deterministic ACO per chromosome (important for GA convergence)
+        seed = hash(str(chrom)) % 100000
+        self.aco.reset(seed=seed)
+
+        return evaluate_solution(
+            chrom,
+            self.customers,
+            self.stops,
+            self.aco
+        )
+
+    # ----------------------------
+    def run(self, generations=50):
+        pop = [self.random_chromosome() for _ in range(self.pop_size)]
+
         best = None
         best_fit = float("inf")
+        history = []
 
-        for _ in range(generations):
-            scored = []
+        for gen in range(generations):
 
-            for chrom in pop:
-                fit = evaluate_solution(chrom, self.customers, self.stops, self.aco)
-                scored.append((fit, chrom))
-
-                if fit < best_fit:
-                    best_fit = fit
-                    best = chrom
-
+            scored = [(self.fitness(c), c) for c in pop]
             scored.sort(key=lambda x: x[0])
-            pop = [c for _, c in scored[:self.pop_size//2]]
 
-            # crossover / mutation (simple)
-            while len(pop) < self.pop_size:
-                p1 = random.choice(pop)
-                p2 = random.choice(pop)
+            # ----------------------------
+            # ELITISM (keep top solutions)
+            # ----------------------------
+            elite = [scored[0][1], scored[1][1]]
 
-                # --- better crossover (order preserved) ---
-                child_order = p1[0][:]
+            best_gen = scored[0][0]
+            history.append(best_gen)
 
-                if random.random() < 0.5:
-                    i, j = sorted(random.sample(range(len(child_order)), 2))
-                    child_order[i:j] = p2[0][i:j]
+            if best_gen < best_fit:
+                best_fit = best_gen
+                best = scored[0][1]
 
-                # --- better assignment crossover ---
-                child_assign = []
-                for a, b in zip(p1[1], p2[1]):
-                    child_assign.append(a if random.random() < 0.5 else b)
+            # ----------------------------
+            # selection pool (NO collapse)
+            # ----------------------------
+            parents = [c for _, c in scored[:self.pop_size]]
 
-                # --- stronger mutation ---
-                if random.random() < 0.3:
-                    i, j = random.sample(range(len(child_order)), 2)
+            # ----------------------------
+            # rebuild population
+            # ----------------------------
+            new_pop = elite.copy()
+
+            while len(new_pop) < self.pop_size:
+
+                p1 = random.choice(parents)
+                p2 = random.choice(parents)
+
+                # crossover
+                child_order = self.crossover_order(p1[0], p2[0])
+
+                # adaptive mutation
+                mut_rate = max(0.05, 0.3 * (1 - gen / generations))
+
+                # mutate order
+                if random.random() < mut_rate:
+                    i, j = random.sample(range(self.m), 2)
                     child_order[i], child_order[j] = child_order[j], child_order[i]
 
-                if random.random() < 0.4:
-                    k = random.randint(0, len(child_assign)-1)
-                    child_assign[k] = random.randint(0, len(self.stops)-1)
+                # assignment crossover
+                child_assign = [
+                    p1[1][i] if random.random() < 0.5 else p2[1][i]
+                    for i in range(self.n)
+                ]
 
-                # mutation
-                if random.random() < 0.2:
-                    i, j = random.sample(range(len(child_order)), 2)
-                    child_order[i], child_order[j] = child_order[j], child_order[i]
+                # mutate assignment
+                if random.random() < mut_rate:
+                    k = random.randint(0, self.n - 1)
+                    child_assign[k] = random.randint(0, self.m - 1)
 
-                pop.append((child_order, child_assign))
+                new_pop.append((child_order, child_assign))
 
-        return best, best_fit
+            pop = new_pop
+
+        return best, best_fit, history
