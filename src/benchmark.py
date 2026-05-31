@@ -17,7 +17,7 @@ def run_benchmark(runs=20):
         ga = GA(customers, stops)
         (_, ga_score, hist) = ga.run()
 
-        (_, rand_score) = random_solution(customers, stops, aco)
+        (_, rand_score) = random_solution(customers, stops)
 
         ga_scores.append(ga_score)
         rand_scores.append(rand_score)

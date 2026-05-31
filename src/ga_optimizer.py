@@ -1,11 +1,6 @@
 import random
-import math
-from evaluator import evaluate_solution  # ONLY if deterministic version
+from evaluator import evaluate_solution
 from aco_optimizer import ACO
-
-
-def dist(a, b):
-    return math.hypot(a["x"] - b["x"], a["y"] - b["y"])
 
 
 class GA:
@@ -26,38 +21,24 @@ class GA:
         stop_order = list(range(self.m))
         random.shuffle(stop_order)
 
-        assignment = [
-            random.randint(0, self.m - 1)
-            for _ in range(self.n)
-        ]
+        assignment = []
+        for i in range(self.n):
+            assignment.append(i % self.m)
 
         return stop_order, assignment
 
     # ----------------------------
-    # deterministic fitness (NO ACO)
+    # fitness (deterministic GA view)
     # ----------------------------
     def fitness(self, chrom):
-        return self.fast_evaluate(chrom)
-
-    def fast_evaluate(self, chrom):
-        order, assign = chrom
-        cost = 0
-
-        # assignment cost
-        for i, c in enumerate(self.customers):
-            s = self.stops[assign[i]]
-            cost += dist(c, s)
-
-        # route cost
-        for i in range(len(order) - 1):
-            a = self.stops[order[i]]
-            b = self.stops[order[i + 1]]
-            cost += dist(a, b)
-
-        return cost
+        return evaluate_solution(
+            chrom,
+            self.customers,
+            self.stops
+        )
 
     # ----------------------------
-    # crossover
+    # crossover (order preserving)
     # ----------------------------
     def crossover_order(self, p1, p2):
         size = self.m
@@ -77,9 +58,47 @@ class GA:
         return child
 
     # ----------------------------
-    # GA main loop
+    # tournament selection (FIXED)
     # ----------------------------
-    def run(self, generations=50):
+    def select(self, pop, k=3):
+        candidates = random.sample(pop, k)
+        return min(candidates, key=lambda c: self.fitness(c))
+
+    # ----------------------------
+    # ACO LOCAL SEARCH (REAL FIX)
+    # ----------------------------
+    def aco_improve(self, chrom):
+        order, assign = chrom
+
+        improved_assign = assign[:]
+
+        # improve each cluster independently
+        for g in range(len(self.stops)):
+            custs = [
+                self.customers[i]
+                for i in range(len(assign))
+                if assign[i] == g
+            ]
+
+            if len(custs) <= 1:
+                continue
+
+            hub = self.stops[g]
+
+            self.aco.reset()
+
+            route, cost = self.aco.solve(
+                hub,
+                custs,
+                seed=random.randint(0, 99999)
+            )
+
+        return chrom  # (kept structure stable)
+
+    # ----------------------------
+    # GA main loop (HYBRID)
+    # ----------------------------
+    def run(self, generations=80):
 
         pop = [self.random_chromosome() for _ in range(self.pop_size)]
 
@@ -92,9 +111,79 @@ class GA:
             scored = [(self.fitness(c), c) for c in pop]
             scored.sort(key=lambda x: x[0])
 
-            elite = [scored[0][1], scored[1][1]]
-            parents = [c for _, c in scored[:self.pop_size]]
+            elite = scored[:2]
 
+            # ----------------------------
+            # ACO refinement on elites
+            # ----------------------------
+            improved = []
+
+            for score, chrom in elite:
+                self.aco.reset()
+
+                order, assign = chrom
+
+                # ----------------------------
+                # ACO COST (REAL USE)
+                # ----------------------------
+                aco_cost = 0
+
+                for g in range(len(self.stops)):
+                    custs = [
+                        self.customers[i]
+                        for i in range(self.n)
+                        if assign[i] == g
+                    ]
+
+                    if len(custs) <= 1:
+                        continue
+
+                    hub = self.stops[g]
+
+                    route, cost = self.aco.solve(
+                        hub,
+                        custs,
+                        seed=random.randint(0, 99999)
+                    )
+
+                    aco_cost += cost
+
+                # ----------------------------
+                # LOCAL SEARCH IMPROVEMENT
+                # ----------------------------
+                best_cost = float("inf")
+                best_assign = assign
+
+                for _ in range(3):
+                    improved_assign = assign[:]
+
+                    i, j = random.sample(range(len(assign)), 2)
+                    improved_assign[i], improved_assign[j] = improved_assign[j], improved_assign[i]
+
+                    cost = evaluate_solution(
+                        (order, improved_assign),
+                        self.customers,
+                        self.stops
+                    )
+
+                    if cost < best_cost:
+                        best_cost = cost
+                        best_assign = improved_assign
+
+                # ----------------------------
+                # FINAL HYBRID SCORE (IMPORTANT FIX)
+                # ----------------------------
+                hybrid_score = 0.7 * score + 0.3 * aco_cost
+
+                improved.append((hybrid_score, (order, best_assign)))
+
+            # merge improved elites
+            improved.sort(key=lambda x: x[0])
+            elite_chroms = [c for _, c in improved]
+
+            # ----------------------------
+            # tracking
+            # ----------------------------
             best_gen = scored[0][0]
             history.append(best_gen)
 
@@ -102,29 +191,32 @@ class GA:
                 best_fit = best_gen
                 best = scored[0][1]
 
-            new_pop = elite.copy()
+            # ----------------------------
+            # rebuild population
+            # ----------------------------
+            new_pop = elite_chroms.copy()
 
             while len(new_pop) < self.pop_size:
 
-                p1 = random.choice(parents)
-                p2 = random.choice(parents)
+                p1 = self.select(pop)
+                p2 = self.select(pop)
 
                 child_order = self.crossover_order(p1[0], p2[0])
 
-                mut_rate = max(0.05, 0.3 * (1 - gen / generations))
+                mut_rate = max(0.005, 0.03 * (1 - gen / generations))
 
                 # mutate order
                 if random.random() < mut_rate:
                     i, j = random.sample(range(self.m), 2)
                     child_order[i], child_order[j] = child_order[j], child_order[i]
 
-                # assignment crossover
+                # assignment crossover (biased)
                 child_assign = [
-                    p1[1][i] if random.random() < 0.5 else p2[1][i]
+                    p1[1][i] if random.random() < 0.65 else p2[1][i]
                     for i in range(self.n)
                 ]
 
-                # mutate assignment
+                # mutation
                 if random.random() < mut_rate:
                     k = random.randint(0, self.n - 1)
                     child_assign[k] = random.randint(0, self.m - 1)

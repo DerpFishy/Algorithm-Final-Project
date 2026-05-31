@@ -31,7 +31,7 @@ def main():
     ga = GA(customers, stops)
 
     ga_solution, ga_score, history = ga.run()
-    rand_solution, rand_score = random_solution(customers, stops, aco)
+    rand_solution, rand_score = random_solution(customers, stops)
 
     print("\n===== SINGLE RUN =====")
     print("GA Score     :", ga_score)

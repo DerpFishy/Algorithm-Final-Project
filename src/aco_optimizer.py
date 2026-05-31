@@ -16,8 +16,10 @@ class ACO:
     # reset ONLY state (NO randomness here)
     # ----------------------------
     def reset(self):
-        self.pheromone = {}
-        self.best = None
+        # DO NOT reset pheromone fully
+        # keep learning across GA
+        for k in list(self.pheromone.keys()):
+            self.pheromone[k] *= 0.9  # evaporation
 
     # ----------------------------
     # local search solver (deterministic via local RNG)
