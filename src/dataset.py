@@ -1,30 +1,29 @@
+import random
 import numpy as np
 
-def generate_data(num_customers):
+def generate_customers(n=10, seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
 
-    np.random.seed(42)
+    customers = []
+    for i in range(n):
+        customers.append({
+            "id": i,
+            "x": random.randint(0, 100),
+            "y": random.randint(0, 100),
+            "demand": random.randint(1, 5)
+        })
+    return customers
 
-    # Depot + customers
-    locations = np.random.rand(num_customers + 1, 2) * 100
 
-    # Customer demands
-    demands = np.random.randint(1, 6, num_customers + 1)
-    demands[0] = 0
+def generate_truck_stops(n=3, seed=42):
+    random.seed(seed)
 
-    return locations, demands
-
-
-def create_distance_matrix(locations):
-
-    size = len(locations)
-
-    matrix = np.zeros((size, size))
-
-    for i in range(size):
-        for j in range(size):
-
-            matrix[i][j] = np.linalg.norm(
-                locations[i] - locations[j]
-            )
-
-    return matrix
+    stops = []
+    for i in range(n):
+        stops.append({
+            "id": i,
+            "x": random.randint(0, 100),
+            "y": random.randint(0, 100),
+        })
+    return stops

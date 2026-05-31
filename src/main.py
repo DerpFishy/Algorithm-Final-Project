@@ -1,179 +1,43 @@
-from dataset import (
-    generate_data,
-    create_distance_matrix
-)
+from dataset import generate_customers, generate_truck_stops
+from ga_optimizer import GA
+from random_baseline import random_solution
+from visualization import plot_side_by_side, plot_bar_comparison
+from aco_optimizer import ACO
+from benchmark import run_benchmark
+import numpy as np
 
-from random_baseline import RandomRouting
+def main():
+    customers = generate_customers(10)
+    stops = generate_truck_stops(3)
 
-from greedy_baseline import GreedyNearestNeighbor
+    aco = ACO()
 
-from aco import AntColonyOptimizer
+    # single run comparison
+    ga = GA(customers, stops)
+    ga_sol, ga_score = ga.run()
 
-from visualization import (
-    plot_routes,
-    plot_convergence,
-    plot_comparison
-)
+    rand_sol, rand_score = random_solution(customers, stops, aco)
 
-# =========================================
-# CONFIGURATION
-# =========================================
+    print("\n===== SINGLE RUN =====")
+    print("GA Score     :", ga_score)
+    print("Random Score :", rand_score)
 
-NUM_CUSTOMERS = 10
-VEHICLE_CAPACITY = 15
+    # VISUAL 1: side-by-side routes
+    plot_side_by_side(customers, stops, ga_sol, rand_sol)
 
-# =========================================
-# DATASET
-# =========================================
+    # VISUAL 2: bar chart
+    plot_bar_comparison(ga_score, rand_score)
 
-locations, demands = generate_data(
-    NUM_CUSTOMERS
-)
+    # VISUAL 3: benchmark stats
+    print("\n===== BENCHMARK (20 runs) =====")
 
-distance_matrix = create_distance_matrix(
-    locations
-)
+    ga_scores, rand_scores = run_benchmark(20)
 
-# =========================================
-# PRINT INPUT DATA
-# =========================================
+    print("GA Avg     :", np.mean(ga_scores))
+    print("Random Avg :", np.mean(rand_scores))
+    print("GA Std     :", np.std(ga_scores))
+    print("Random Std :", np.std(rand_scores))
 
-print("\n===== INPUT DATA =====")
 
-print(f"\nVehicle Capacity: {VEHICLE_CAPACITY}")
-
-print("\nCustomer Locations and Demands:")
-
-for i in range(len(locations)):
-
-    x = locations[i][0]
-    y = locations[i][1]
-
-    demand = demands[i]
-
-    print(
-        f"Node {i}: "
-        f"({x:.2f}, {y:.2f}) "
-        f"| Demand: {demand}"
-    )
-
-total_demand = sum(demands)
-
-print(f"\nTotal Customer Demand: {total_demand}")
-
-# =========================================
-# RANDOM BASELINE
-# =========================================
-
-random_solver = RandomRouting(
-    num_customers=NUM_CUSTOMERS,
-    vehicle_capacity=VEHICLE_CAPACITY,
-    distance_matrix=distance_matrix,
-    demands=demands
-)
-
-random_routes, random_distance = (
-    random_solver.run()
-)
-
-# =========================================
-# GREEDY BASELINE
-# =========================================
-
-greedy_solver = GreedyNearestNeighbor(
-    num_customers=NUM_CUSTOMERS,
-    vehicle_capacity=VEHICLE_CAPACITY,
-    distance_matrix=distance_matrix,
-    demands=demands
-)
-
-greedy_routes, greedy_distance = (
-    greedy_solver.run()
-)
-
-# =========================================
-# ACO OPTIMIZER
-# =========================================
-
-aco = AntColonyOptimizer(
-    num_customers=NUM_CUSTOMERS,
-    vehicle_capacity=VEHICLE_CAPACITY,
-    distance_matrix=distance_matrix,
-    demands=demands
-)
-
-best_routes, best_distance, distance_history = (
-    aco.optimize()
-)
-
-# =========================================
-# RESULTS
-# =========================================
-
-print("\n===== RANDOM BASELINE =====")
-
-for idx, route in enumerate(random_routes):
-
-    clean_route = [int(x) for x in route]
-
-    print(
-        f"Vehicle {idx+1}: "
-        f"{clean_route}"
-    )
-
-print(
-    f"\nRandom Total Distance: "
-    f"{random_distance:.2f}\n"
-)
-
-print("\n===== GREEDY BASELINE =====")
-
-for idx, route in enumerate(greedy_routes):
-
-    clean_route = [int(x) for x in route]
-
-    print(
-        f"Vehicle {idx+1}: "
-        f"{clean_route}"
-    )
-
-print(
-    f"\nGreedy Total Distance: "
-    f"{greedy_distance:.2f}\n"
-)
-
-print("\n===== ACO BEST ROUTES =====")
-
-for idx, route in enumerate(best_routes):
-
-    clean_route = [int(x) for x in route]
-    print(f"Vehicle {idx+1}: {clean_route}")
-    
-
-print(
-    f"\nBest Total Distance: "
-    f"{best_distance:.2f}\n"
-)
-
-# =========================================
-# VISUALIZATION
-# =========================================
-
-plot_routes(
-    best_routes,
-    locations
-)
-
-plot_convergence(
-    distance_history
-)
-
-# =========================================
-# COMPARISON CHART
-# =========================================
-
-plot_comparison(
-    random_distance,
-    greedy_distance,
-    best_distance
-)
+if __name__ == "__main__":
+    main()

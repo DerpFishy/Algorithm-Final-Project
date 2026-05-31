@@ -1,88 +1,46 @@
 import matplotlib.pyplot as plt
 
-def plot_routes(routes,
-                locations):
+def plot_solution(ax, customers, stops, chrom, title):
+    stop_order, assignment = chrom
 
-    plt.figure(figsize=(8, 6))
+    # customers
+    for c in customers:
+        ax.scatter(c["x"], c["y"], c="blue")
+        ax.text(c["x"], c["y"], str(c["id"]), fontsize=8)
 
-    for route in routes:
+    # stops
+    for s in stops:
+        ax.scatter(s["x"], s["y"], c="red", marker="s")
+        ax.text(s["x"], s["y"], f"S{s['id']}", fontsize=10)
 
-        coords = locations[route]
+    # assignment lines (customer → stop)
+    for c, g in zip(customers, assignment):
+        s = stops[g]
+        ax.plot([c["x"], s["x"]], [c["y"], s["y"]], "gray", alpha=0.3)
 
-        plt.plot(
-            coords[:, 0],
-            coords[:, 1],
-            marker='o'
-        )
+    # truck route
+    for i in range(len(stop_order) - 1):
+        a = stops[stop_order[i]]
+        b = stops[stop_order[i + 1]]
+        ax.plot([a["x"], b["x"]], [a["y"], b["y"]], "red")
 
-    # Depot
-    plt.scatter(
-        locations[0][0],
-        locations[0][1],
-        s=200,
-        marker='s',
-        label='Depot'
-    )
+    ax.set_title(title)
 
-    plt.title("ACO Delivery Routes")
 
-    plt.xlabel("X Coordinate")
-    plt.ylabel("Y Coordinate")
+def plot_side_by_side(customers, stops, ga_sol, rand_sol):
+    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
 
-    plt.legend()
-    plt.grid(True)
+    plot_solution(axs[0], customers, stops, ga_sol, "GA Solution")
+    plot_solution(axs[1], customers, stops, rand_sol, "Random Baseline")
 
+    plt.tight_layout()
     plt.show()
 
+def plot_bar_comparison(ga_score, rand_score):
+    import matplotlib.pyplot as plt
 
-def plot_convergence(distance_history):
-
-    plt.figure(figsize=(8, 5))
-
-    plt.plot(distance_history)
-
-    plt.title("ACO Convergence")
-
-    plt.xlabel("Iteration")
-    plt.ylabel("Best Distance")
-
-    plt.grid(True)
-
-    plt.show()
-
-def plot_comparison(random_cost,
-                    greedy_cost,
-                    aco_cost):
-
-    algorithms = [
-        "Random",
-        "Greedy",
-        "ACO"
-    ]
-
-    costs = [
-        random_cost,
-        greedy_cost,
-        aco_cost
-    ]
-
-    plt.figure(figsize=(8, 5))
-
-    plt.bar(algorithms, costs)
-
-    plt.title("CVRP Route Optimization Comparison")
-    plt.ylabel("Total Distance")
-
-    for i, cost in enumerate(costs):
-
-        plt.text(
-            i,
-            cost,
-            f"{cost:.2f}",
-            ha='center',
-            va='bottom'
-        )
-
-    plt.grid(axis='y', linestyle='--', alpha=0.5)
-
+    plt.figure()
+    plt.bar(["GA", "Random"], [ga_score, rand_score])
+    plt.title("Optimization Performance Comparison")
+    plt.ylabel("Total Cost (Lower is Better)")
     plt.show()
