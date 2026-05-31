@@ -1,6 +1,11 @@
 import random
+import math
+from evaluator import evaluate_solution  # ONLY if deterministic version
 from aco_optimizer import ACO
-from evaluator import evaluate_solution
+
+
+def dist(a, b):
+    return math.hypot(a["x"] - b["x"], a["y"] - b["y"])
 
 
 class GA:
@@ -8,10 +13,11 @@ class GA:
         self.customers = customers
         self.stops = stops
         self.pop_size = pop_size
-        self.aco = ACO()
 
         self.m = len(stops)
         self.n = len(customers)
+
+        self.aco = ACO()
 
     # ----------------------------
     # init chromosome
@@ -28,7 +34,30 @@ class GA:
         return stop_order, assignment
 
     # ----------------------------
-    # OX crossover
+    # deterministic fitness (NO ACO)
+    # ----------------------------
+    def fitness(self, chrom):
+        return self.fast_evaluate(chrom)
+
+    def fast_evaluate(self, chrom):
+        order, assign = chrom
+        cost = 0
+
+        # assignment cost
+        for i, c in enumerate(self.customers):
+            s = self.stops[assign[i]]
+            cost += dist(c, s)
+
+        # route cost
+        for i in range(len(order) - 1):
+            a = self.stops[order[i]]
+            b = self.stops[order[i + 1]]
+            cost += dist(a, b)
+
+        return cost
+
+    # ----------------------------
+    # crossover
     # ----------------------------
     def crossover_order(self, p1, p2):
         size = self.m
@@ -48,22 +77,10 @@ class GA:
         return child
 
     # ----------------------------
-    # fitness (reduced noise)
-    # ----------------------------
-    def fitness(self, chrom):
-        # deterministic ACO per chromosome (important for GA convergence)
-        seed = hash(str(chrom)) % 100000
-        self.aco.reset(seed=seed)
-
-        return evaluate_solution(
-            chrom,
-            self.customers,
-            self.stops,
-            self.aco
-        )
-
+    # GA main loop
     # ----------------------------
     def run(self, generations=50):
+
         pop = [self.random_chromosome() for _ in range(self.pop_size)]
 
         best = None
@@ -75,10 +92,8 @@ class GA:
             scored = [(self.fitness(c), c) for c in pop]
             scored.sort(key=lambda x: x[0])
 
-            # ----------------------------
-            # ELITISM (keep top solutions)
-            # ----------------------------
             elite = [scored[0][1], scored[1][1]]
+            parents = [c for _, c in scored[:self.pop_size]]
 
             best_gen = scored[0][0]
             history.append(best_gen)
@@ -87,14 +102,6 @@ class GA:
                 best_fit = best_gen
                 best = scored[0][1]
 
-            # ----------------------------
-            # selection pool (NO collapse)
-            # ----------------------------
-            parents = [c for _, c in scored[:self.pop_size]]
-
-            # ----------------------------
-            # rebuild population
-            # ----------------------------
             new_pop = elite.copy()
 
             while len(new_pop) < self.pop_size:
@@ -102,10 +109,8 @@ class GA:
                 p1 = random.choice(parents)
                 p2 = random.choice(parents)
 
-                # crossover
                 child_order = self.crossover_order(p1[0], p2[0])
 
-                # adaptive mutation
                 mut_rate = max(0.05, 0.3 * (1 - gen / generations))
 
                 # mutate order

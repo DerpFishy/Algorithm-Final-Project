@@ -42,8 +42,11 @@ def generate_truck_stops(n=3, seed=42):
 
 
 def generate_instance(n_customers=10, n_stops=3, seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+
     return {
-        "depot": generate_depot(seed),
-        "customers": generate_customers(n_customers, seed),
-        "stops": generate_truck_stops(n_stops, seed)
+        "depot": generate_depot(),
+        "customers": generate_customers(n_customers),
+        "stops": generate_truck_stops(n_stops)
     }
