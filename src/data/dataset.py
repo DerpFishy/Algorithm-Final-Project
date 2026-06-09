@@ -106,3 +106,41 @@ def dataset_big():
     ]
 
     return customers, stops
+
+import random
+
+
+def generate_random_dataset(num_customers=20, num_stops=8,
+                             x_range=(0, 20), y_range=(0, 20),
+                             seed=None):
+    """
+    Random GA dataset generator for stop selection problem
+    """
+
+    if seed is not None:
+        random.seed(seed)
+
+    customers = []
+    stops = []
+
+    # ------------------------
+    # generate customers
+    # ------------------------
+    for i in range(num_customers):
+        customers.append({
+            "id": i,
+            "x": random.randint(*x_range),
+            "y": random.randint(*y_range)
+        })
+
+    # ------------------------
+    # generate stops
+    # ------------------------
+    for i in range(num_stops):
+        stops.append({
+            "id": i,
+            "x": random.randint(*x_range),
+            "y": random.randint(*y_range)
+        })
+
+    return customers, stops
