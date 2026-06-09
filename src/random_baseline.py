@@ -4,10 +4,11 @@ from evaluator import Evaluator
 
 class RandomBaseline:
 
-    def __init__(self, customers, stops):
+    def __init__(self, customers, stops, customer_stop_matrix):
         self.customers = customers
         self.stops = stops
-        self.evaluator = Evaluator(stops, customers)
+        self.customer_stop_matrix = customer_stop_matrix
+        self.evaluator = Evaluator(stops, customers, customer_stop_matrix)
 
     def random_solution(self):
         return [random.randint(0, 1) for _ in self.stops]

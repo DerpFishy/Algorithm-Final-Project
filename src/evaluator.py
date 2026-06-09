@@ -1,63 +1,86 @@
-import math
-from constraint import Constraints
+import numpy as np
 
 
 class Evaluator:
 
-    def __init__(self, stops, customers, max_distance=8, alpha=5.0):
+    def __init__(
+        self,
+        stops,
+        customers,
+        customer_stop_matrix,
+        max_distance=8,
+        alpha=1500.0
+    ):
         self.stops = stops
         self.customers = customers
-        self.constraints = Constraints(stops, max_distance, alpha)
+        self.customer_stop_matrix = customer_stop_matrix
 
-    # use ONE source of distance
-    def dist(self, a, b):
-        return self.constraints.dist(a, b)
+        self.max_distance = max_distance
+        self.alpha = alpha
 
-    # fitness function
+    # penalty: number of open stops
+    def stop_penalty(self, num_open):
+        return self.alpha * np.sqrt(num_open)
+
+    # distance penalty (vectorized logic)
+    def distance_penalty(self, d):
+        return np.where(
+            d <= self.max_distance,
+            0,
+            (d - self.max_distance) * 10
+        )
+
+    # FITNESS (FAST VERSION)
     def evaluate(self, chrom):
 
-        open_stops = [
-            self.stops[i]
-            for i in range(len(chrom))
-            if chrom[i] == 1
-        ]
+        open_indices = np.flatnonzero(chrom)
 
-        # invalid solution
-        if not open_stops:
+        if len(open_indices) == 0:
             return float("inf")
 
-        distance_cost = 0
+        # distance matrix subset: (customers × open_stops)
+        sub_matrix = self.customer_stop_matrix[:, open_indices]
 
-        for c in self.customers:
-            distance_cost += self.constraints.evaluate_customer(c, open_stops)
+        # nearest stop per customer
+        nearest_dist = sub_matrix.min(axis=1)
 
-        distance_cost = distance_cost / len(self.customers)
+        # cost per customer
+        total_distance = np.mean(
+            nearest_dist + self.distance_penalty(nearest_dist)
+        )
 
-        facility_cost = self.constraints.stop_penalty(len(open_stops))
+        # facility cost
+        facility_cost = self.stop_penalty(len(open_indices))
 
-        total_cost = distance_cost + facility_cost
-        return total_cost
+        # unused stop penalty (optional but kept from your logic)
+        used = set(np.argmin(sub_matrix, axis=1))
+        used_global = set(open_indices[i] for i in used)
 
-    # for visualization only
+        unused_open = len(open_indices) - len(used_global)
+        unused_penalty = 1000.0 * unused_open
+
+        return total_distance + facility_cost + unused_penalty
+
+    # VISUALIZATION (FAST + CORRECT)
     def assign(self, chrom):
 
-        open_stops = [
-            self.stops[i]
-            for i in range(len(chrom))
-            if chrom[i] == 1
-        ]
+        open_indices = np.flatnonzero(chrom)
 
-        if not open_stops:
+        if len(open_indices) == 0:
             return [], []
 
-        assignments = []
+        sub_matrix = self.customer_stop_matrix[:, open_indices]
 
-        for c in self.customers:
-            best_stop = min(
-                open_stops,
-                key=lambda s: self.constraints.dist(c, s)
+        nearest_pos = np.argmin(sub_matrix, axis=1)
+
+        assignments = [
+            (
+                self.customers[i],
+                self.stops[open_indices[nearest_pos[i]]]
             )
+            for i in range(len(self.customers))
+        ]
 
-            assignments.append((c, best_stop))
+        open_stops = [self.stops[i] for i in open_indices]
 
         return open_stops, assignments
