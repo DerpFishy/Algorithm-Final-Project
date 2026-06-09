@@ -4,20 +4,16 @@ from constraint import Constraints
 
 class Evaluator:
 
-    def __init__(self, stops, customers, max_distance=8, alpha=3.0):
+    def __init__(self, stops, customers, max_distance=8, alpha=5.0):
         self.stops = stops
         self.customers = customers
         self.constraints = Constraints(stops, max_distance, alpha)
 
-    # ----------------------------
     # use ONE source of distance
-    # ----------------------------
     def dist(self, a, b):
         return self.constraints.dist(a, b)
 
-    # ----------------------------
     # fitness function
-    # ----------------------------
     def evaluate(self, chrom):
 
         open_stops = [
@@ -42,9 +38,7 @@ class Evaluator:
         total_cost = distance_cost + facility_cost
         return total_cost
 
-    # ----------------------------
     # for visualization only
-    # ----------------------------
     def assign(self, chrom):
 
         open_stops = [

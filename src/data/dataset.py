@@ -110,22 +110,16 @@ def dataset_big():
 import random
 
 
-def generate_random_dataset(num_customers=20, num_stops=8,
-                             x_range=(0, 20), y_range=(0, 20),
+def generate_random_dataset(num_customers, num_stops,
+                             x_range=(0, 200), y_range=(0, 200),
                              seed=None):
-    """
-    Random GA dataset generator for stop selection problem
-    """
-
     if seed is not None:
         random.seed(seed)
 
     customers = []
     stops = []
 
-    # ------------------------
     # generate customers
-    # ------------------------
     for i in range(num_customers):
         customers.append({
             "id": i,
@@ -133,9 +127,7 @@ def generate_random_dataset(num_customers=20, num_stops=8,
             "y": random.randint(*y_range)
         })
 
-    # ------------------------
     # generate stops
-    # ------------------------
     for i in range(num_stops):
         stops.append({
             "id": i,

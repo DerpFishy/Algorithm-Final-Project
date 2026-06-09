@@ -4,31 +4,25 @@ from evaluator import Evaluator
 
 class GAOnly:
 
-    def __init__(self, customers, stops, pop_size=50, elite_size=2):
+    def __init__(self, customers, stops, elite_size=2):
         self.customers = customers
         self.stops = stops
-        self.pop_size = pop_size
+        self.pop_size = max(30, min(150, 10 * len(stops)))
         self.elite_size = elite_size
 
         # stronger constraint pressure
-        self.evaluator = Evaluator(stops, customers, alpha=3.0)
+        self.evaluator = Evaluator(stops, customers, alpha=5.0)
 
-    # -----------------------------
     # INIT
-    # -----------------------------
     def random_chromosome(self):
         return [random.randint(0, 1) for _ in self.stops]
 
-    # -----------------------------
     # FITNESS
-    # -----------------------------
     def fitness(self, chrom):
         return self.evaluator.evaluate(chrom)
 
-    # -----------------------------
     # TOURNAMENT SELECTION
-    # -----------------------------
-    def tournament_selection(self, population, fitness_vals, k=3):
+    def tournament_selection(self, population, fitness_vals, k=5):
         selected = []
 
         for _ in range(len(population)):
@@ -38,18 +32,14 @@ class GAOnly:
 
         return selected
 
-    # -----------------------------
     # CROSSOVER
-    # -----------------------------
     def crossover(self, p1, p2):
         return [
             p1[i] if random.random() < 0.5 else p2[i]
             for i in range(len(p1))
         ]
 
-    # -----------------------------
-    # MUTATION (IMPROVED)
-    # -----------------------------
+    # MUTATION
     def mutation(self, chrom, rate=0.3):
         for i in range(len(chrom)):
             if random.random() < rate:
@@ -61,24 +51,21 @@ class GAOnly:
 
         return chrom
 
-    # -----------------------------
     # GET BEST
-    # -----------------------------
     def get_best(self, population):
         fitness_vals = [self.fitness(c) for c in population]
         best_idx = fitness_vals.index(min(fitness_vals))
         return population[best_idx], fitness_vals[best_idx]
 
-    # -----------------------------
     # RUN GA
-    # -----------------------------
-    def run(self, generations=50):
+    def run(self, generations=100):
 
         # init population
         population = [self.random_chromosome() for _ in range(self.pop_size)]
 
         best_solution = None
         best_cost = float("inf")
+        best_history = []
 
         for gen in range(generations):
 
@@ -91,10 +78,9 @@ class GAOnly:
                 best_solution = population[gen_best_idx]
 
             print(f"Gen {gen} best cost: {fitness_vals[gen_best_idx]}")
+            best_history.append(fitness_vals[gen_best_idx])
 
-            # -------------------------
             # ELITISM (KEEP BEST)
-            # -------------------------
             sorted_pop = sorted(
                 zip(population, fitness_vals),
                 key=lambda x: x[1]
@@ -102,14 +88,10 @@ class GAOnly:
 
             new_pop = [ind[0] for ind in sorted_pop[:self.elite_size]]
 
-            # -------------------------
             # SELECTION
-            # -------------------------
             selected = self.tournament_selection(population, fitness_vals)
 
-            # -------------------------
             # CROSSOVER + MUTATION
-            # -------------------------
             while len(new_pop) < self.pop_size:
 
                 p1 = random.choice(selected)
@@ -120,18 +102,14 @@ class GAOnly:
 
                 new_pop.append(child)
 
-            # -------------------------
-            # DIVERSITY INJECTION (IMPORTANT)
-            # -------------------------
+            # DIVERSITY INJECTION to prevent stagnation
             for i in range(self.elite_size, self.elite_size + 2):
                 if i < len(new_pop) and random.random() < 0.1:
                     new_pop[i] = self.random_chromosome()
 
             population = new_pop
 
-        # -----------------------------
         # FINAL RESULT
-        # -----------------------------
         open_stops, assignments = self.evaluator.assign(best_solution)
 
-        return best_solution, best_cost, open_stops, assignments
+        return best_solution, best_cost, open_stops, assignments, best_history

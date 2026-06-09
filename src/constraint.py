@@ -2,36 +2,24 @@ import math
 
 class Constraints:
 
-    def __init__(self, stops, customers=None, max_distance=8, alpha=3.0):
-        """
-        stops: candidate facilities
-        customers: optional (used for normalization if needed)
-        max_distance: threshold for soft constraint
-        alpha: weight for number of open stops
-        """
+    def __init__(self, stops, customers=None, max_distance=8, alpha=5.0):
         self.stops = stops
         self.customers = customers
         self.max_distance = max_distance
         self.alpha = alpha
 
-    # -----------------------------------
     # Euclidean distance
-    # -----------------------------------
     def dist(self, a, b):
         return math.sqrt(
             (a["x"] - b["x"]) ** 2 +
             (a["y"] - b["y"]) ** 2
         )
 
-    # -----------------------------------
     # penalty for number of open stops
-    # -----------------------------------
     def stop_penalty(self, num_open_stops):
         return self.alpha * math.sqrt(num_open_stops)
 
-    # -----------------------------------
-    # smooth distance penalty (GA-friendly)
-    # -----------------------------------
+    # smooth distance penalty
     def distance_penalty(self, min_dist):
         if min_dist <= self.max_distance:
             return 0
@@ -39,12 +27,10 @@ class Constraints:
         # smooth penalty instead of hard jump
         return (min_dist - self.max_distance) * 10
 
-    # -----------------------------------
     # evaluate one customer
-    # -----------------------------------
     def evaluate_customer(self, customer, open_stops):
 
-        # IMPORTANT: avoid crash when no stops are open
+        # avoid crash when no stops are open
         if not open_stops:
             return float("inf")
 
