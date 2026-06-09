@@ -1,52 +1,108 @@
-import random
-import numpy as np
+def dataset_1():
+    return (
+        # simple balanced
+        [
+            {"id": 0, "x": 2, "y": 3},
+            {"id": 1, "x": 5, "y": 4},
+            {"id": 2, "x": 1, "y": 8},
+            {"id": 3, "x": 7, "y": 2},
+            {"id": 4, "x": 6, "y": 6},
+        ],
+        [
+            {"id": 0, "x": 2, "y": 2},
+            {"id": 1, "x": 6, "y": 3},
+            {"id": 2, "x": 4, "y": 7},
+        ]
+    )
 
 
-def generate_depot(seed=42):
-    random.seed(seed)
-    np.random.seed(seed)
-
-    return {
-        "id": 0,
-        "x": random.randint(0, 100),
-        "y": random.randint(0, 100)
-    }
-
-
-def generate_customers(n=10, seed=42):
-    random.seed(seed)
-    np.random.seed(seed)
-
-    customers = []
-    for i in range(n):
-        customers.append({
-            "id": i,
-            "x": random.randint(0, 100),
-            "y": random.randint(0, 100),
-            "demand": random.randint(1, 5)
-        })
-    return customers
+def dataset_2():
+    return (
+        # clustered + redundancy test
+        [
+            {"id": 0, "x": 1, "y": 2},
+            {"id": 1, "x": 2, "y": 1},
+            {"id": 2, "x": 2, "y": 3},
+            {"id": 3, "x": 6, "y": 2},
+            {"id": 4, "x": 7, "y": 3},
+            {"id": 5, "x": 6, "y": 4},
+            {"id": 6, "x": 3, "y": 8},
+            {"id": 7, "x": 4, "y": 9},
+        ],
+        [
+            {"id": 0, "x": 2, "y": 2},
+            {"id": 1, "x": 6, "y": 3},
+            {"id": 2, "x": 4, "y": 9},
+            {"id": 3, "x": 8, "y": 7},
+            {"id": 4, "x": 5, "y": 5},
+        ]
+    )
 
 
-def generate_truck_stops(n=3, seed=42):
-    random.seed(seed + 100)  # avoid identical overlap with customers
+def dataset_3():
+    return (
+        # more spread (harder)
+        [
+            {"id": 0, "x": 1, "y": 1},
+            {"id": 1, "x": 2, "y": 5},
+            {"id": 2, "x": 3, "y": 8},
+            {"id": 3, "x": 6, "y": 1},
+            {"id": 4, "x": 7, "y": 4},
+            {"id": 5, "x": 8, "y": 8},
+            {"id": 6, "x": 5, "y": 6},
+            {"id": 7, "x": 4, "y": 3},
+            {"id": 8, "x": 9, "y": 2},
+        ],
+        [
+            {"id": 0, "x": 1, "y": 1},
+            {"id": 1, "x": 4, "y": 3},
+            {"id": 2, "x": 6, "y": 1},
+            {"id": 3, "x": 8, "y": 8},
+            {"id": 4, "x": 3, "y": 8},
+        ]
+    )
 
-    stops = []
-    for i in range(n):
-        stops.append({
-            "id": i,
-            "x": random.randint(0, 100),
-            "y": random.randint(0, 100)
-        })
-    return stops
+def dataset_big():
+    """
+    Larger GA test dataset (15 customers, 7 stops)
+    Designed for real clustering behavior
+    """
 
+    customers = [
+        # Cluster 1 (bottom-left)
+        {"id": 0, "x": 1, "y": 2},
+        {"id": 1, "x": 2, "y": 1},
+        {"id": 2, "x": 3, "y": 2},
 
-def generate_instance(n_customers=10, n_stops=3, seed=42):
-    random.seed(seed)
-    np.random.seed(seed)
+        # Cluster 2 (center-left)
+        {"id": 3, "x": 4, "y": 5},
+        {"id": 4, "x": 5, "y": 4},
+        {"id": 5, "x": 5, "y": 6},
 
-    return {
-        "depot": generate_depot(),
-        "customers": generate_customers(n_customers),
-        "stops": generate_truck_stops(n_stops)
-    }
+        # Cluster 3 (center-right)
+        {"id": 6, "x": 7, "y": 5},
+        {"id": 7, "x": 8, "y": 4},
+        {"id": 8, "x": 8, "y": 6},
+
+        # Cluster 4 (top)
+        {"id": 9, "x": 6, "y": 8},
+        {"id": 10, "x": 7, "y": 9},
+        {"id": 11, "x": 5, "y": 9},
+
+        # Noise points
+        {"id": 12, "x": 9, "y": 2},
+        {"id": 13, "x": 2, "y": 8},
+        {"id": 14, "x": 6, "y": 1},
+    ]
+
+    stops = [
+        {"id": 0, "x": 2, "y": 2},   # cluster 1
+        {"id": 1, "x": 5, "y": 5},   # center hub
+        {"id": 2, "x": 8, "y": 5},   # cluster 3
+        {"id": 3, "x": 6, "y": 9},   # top cluster
+        {"id": 4, "x": 3, "y": 8},   # left-top
+        {"id": 5, "x": 9, "y": 2},   # right-bottom
+        {"id": 6, "x": 7, "y": 1},   # bottom-right
+    ]
+
+    return customers, stops

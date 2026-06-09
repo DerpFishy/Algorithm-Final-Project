@@ -1,51 +1,69 @@
 import math
-from constraint import compute_penalty
+from constraint import Constraints
 
 
-def dist(a, b):
-    return math.hypot(a["x"] - b["x"], a["y"] - b["y"])
+class Evaluator:
 
-
-def evaluate_solution(chrom, customers, stops):
-    stop_order, assignment = chrom
-
-    stop_map = {s["id"]: s for s in stops}
-
-    groups = {i: [] for i in range(len(stops))}
-    for c, g in zip(customers, assignment):
-        if g < 0 or g >= len(stops):
-            g = g % len(stops)
-        groups[g].append(c)
-
-    total_cost = 0
+    def __init__(self, stops, customers, max_distance=8, alpha=3.0):
+        self.stops = stops
+        self.customers = customers
+        self.constraints = Constraints(stops, max_distance, alpha)
 
     # ----------------------------
-    # TRUCK COST
+    # use ONE source of distance
     # ----------------------------
-    for i in range(len(stop_order) - 1):
-        a = stop_map[stop_order[i]]
-        b = stop_map[stop_order[i + 1]]
-        total_cost += dist(a, b)
+    def dist(self, a, b):
+        return self.constraints.dist(a, b)
 
     # ----------------------------
-    # UAV COST (hub-based star model)
+    # fitness function
     # ----------------------------
-    for g, custs in groups.items():
-        if not custs:
-            continue
+    def evaluate(self, chrom):
 
-        hub = stop_map[g]
+        open_stops = [
+            self.stops[i]
+            for i in range(len(chrom))
+            if chrom[i] == 1
+        ]
 
-        # round-trip UAV cost approximation
-        for c in custs:
-            d = dist(hub, c)
-            total_cost += 2 * (d ** 0.9)  # sublinear UAV cost to encourage grouping
+        # invalid solution
+        if not open_stops:
+            return float("inf")
+
+        distance_cost = 0
+
+        for c in self.customers:
+            distance_cost += self.constraints.evaluate_customer(c, open_stops)
+
+        distance_cost = distance_cost / len(self.customers)
+
+        facility_cost = self.constraints.stop_penalty(len(open_stops))
+
+        total_cost = distance_cost + facility_cost
+        return total_cost
 
     # ----------------------------
-    # PENALTY (normalized)
+    # for visualization only
     # ----------------------------
-    penalty = compute_penalty(groups)
+    def assign(self, chrom):
 
-    penalty_weight = total_cost / max(1, len(customers))
+        open_stops = [
+            self.stops[i]
+            for i in range(len(chrom))
+            if chrom[i] == 1
+        ]
 
-    return total_cost + 0.05 * penalty * penalty_weight
+        if not open_stops:
+            return [], []
+
+        assignments = []
+
+        for c in self.customers:
+            best_stop = min(
+                open_stops,
+                key=lambda s: self.constraints.dist(c, s)
+            )
+
+            assignments.append((c, best_stop))
+
+        return open_stops, assignments

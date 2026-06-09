@@ -1,46 +1,62 @@
 import matplotlib.pyplot as plt
 
-def plot_solution(ax, customers, stops, chrom, title):
-    stop_order, assignment = chrom
 
-    # customers
-    for c in customers:
-        ax.scatter(c["x"], c["y"], c="blue")
-        ax.text(c["x"], c["y"], str(c["id"]), fontsize=8)
+def plot_solution(customers, stops, open_stops, assignments):
 
-    # stops
-    for s in stops:
-        ax.scatter(s["x"], s["y"], c="red", marker="s")
-        ax.text(s["x"], s["y"], f"S{s['id']}", fontsize=10)
+    plt.figure(figsize=(8, 6))
 
-    # assignment lines (customer → stop)
-    for c, g in zip(customers, assignment):
-        s = stops[g]
-        ax.plot([c["x"], s["x"]], [c["y"], s["y"]], "gray", alpha=0.3)
+    # ---------------------------
+    # Candidate stops (gray)
+    # ---------------------------
+    for i, s in enumerate(stops):
+        plt.scatter(
+            s["x"], s["y"],
+            c="gray",
+            marker="s",
+            s=80,
+            label="Candidate Stop" if i == 0 else ""
+        )
 
-    # truck route
-    for i in range(len(stop_order) - 1):
-        a = stops[stop_order[i]]
-        b = stops[stop_order[i + 1]]
-        ax.plot([a["x"], b["x"]], [a["y"], b["y"]], "red")
+    # ---------------------------
+    # Open stops (red)
+    # ---------------------------
+    for i, s in enumerate(open_stops):
+        plt.scatter(
+            s["x"], s["y"],
+            c="red",
+            marker="s",
+            s=160,
+            label="Open Stop" if i == 0 else ""
+        )
 
-    ax.set_title(title)
+    # ---------------------------
+    # Customers (blue)
+    # ---------------------------
+    for i, c in enumerate(customers):
+        plt.scatter(
+            c["x"], c["y"],
+            c="blue",
+            s=40,
+            label="Customer" if i == 0 else ""
+        )
 
+    # ---------------------------
+    # Assignment lines
+    # ---------------------------
+    for c, s in assignments:
+        plt.plot(
+            [c["x"], s["x"]],
+            [c["y"], s["y"]],
+            c="green",
+            alpha=0.4
+        )
 
-def plot_side_by_side(customers, stops, ga_sol, rand_sol):
-    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
+    # ---------------------------
+    # Layout improvements
+    # ---------------------------
+    plt.title("GA Stop Selection + Greedy Assignment")
+    plt.legend()
+    plt.grid(True)
+    plt.axis("equal")
 
-    plot_solution(axs[0], customers, stops, ga_sol, "GA Solution")
-    plot_solution(axs[1], customers, stops, rand_sol, "Random Baseline")
-
-    plt.tight_layout()
-    plt.show()
-
-def plot_bar_comparison(ga_score, rand_score):
-    import matplotlib.pyplot as plt
-
-    plt.figure()
-    plt.bar(["GA", "Random"], [ga_score, rand_score])
-    plt.title("Optimization Performance Comparison")
-    plt.ylabel("Total Cost (Lower is Better)")
     plt.show()
