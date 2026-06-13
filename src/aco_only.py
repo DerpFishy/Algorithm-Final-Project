@@ -1,9 +1,8 @@
 import math
 import random
 
-
 class ACOOnly:
-    def __init__(self, customers, distance_matrix, Qmax, V,
+    def __init__(self, customers, distance_matrix, Qmax, UAV_V,
                  n_ants=10,
                  alpha=1.5,
                  beta=1.5,
@@ -12,7 +11,7 @@ class ACOOnly:
         self.customers = customers
         self.dist = distance_matrix
         self.Qmax = Qmax
-        self.V = V
+        self.UAV_V = UAV_V
 
         self.n_ants = n_ants
         self.alpha = alpha
@@ -151,6 +150,6 @@ class ACOOnly:
             self.best_history.append(best_cost)
             self.avg_history.append(sum(costs) / len(costs))
 
-            print(f"Iter {it+1}: Best={best_cost:.4f}, Avg={self.avg_history[-1]:.4f}")
+            # print(f"Iter {it+1}: Best={best_cost:.4f}, Avg={self.avg_history[-1]:.4f}")
 
         return best_solution, best_cost

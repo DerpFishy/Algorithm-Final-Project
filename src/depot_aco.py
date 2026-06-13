@@ -1,10 +1,11 @@
 import random
 
 class DepotACO:
-    def __init__(self, depots, dist_matrix, n_ants=10, alpha=2, beta=1, rho=0.2):
+    def __init__(self, depots, dist_matrix, V, n_ants=10, alpha=1.5, beta=1.5, rho=0.2):
 
         self.depots = depots
         self.dist = dist_matrix
+        self.V = V
 
         self.n = len(depots)
 

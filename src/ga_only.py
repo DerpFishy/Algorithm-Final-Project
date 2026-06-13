@@ -8,7 +8,7 @@ class GAOnly:
         self.customers = customers
         self.stops = stops
         self.customer_stop_matrix = customer_stop_matrix
-        self.pop_size = max(50, min(200, 10 * len(stops)))
+        self.pop_size = max(30, min(500, 10 * len(stops)))
         self.elite_size = elite_size
 
         # stronger constraint pressure
@@ -78,7 +78,7 @@ class GAOnly:
                 best_cost = fitness_vals[gen_best_idx]
                 best_solution = population[gen_best_idx]
 
-            print(f"Gen {gen} best cost: {fitness_vals[gen_best_idx]}")
+            # print(f"Gen {gen} best cost: {fitness_vals[gen_best_idx]}")
             best_history.append(fitness_vals[gen_best_idx])
 
             # ELITISM (KEEP BEST)

@@ -12,64 +12,33 @@ def plot_convergence(best_history):
     plt.grid(True)
     plt.show()
 
-def plot_solution(customers, stops, open_stops, assignments):
-
-    plt.figure(figsize=(8, 6))
-
-    # Candidate stops (gray)
-    for i, s in enumerate(stops):
-        plt.scatter(
-            s["x"], s["y"],
-            c="gray",
-            marker="s",
-            s=80,
-            label="Candidate Stop" if i == 0 else ""
-        )
-
-    # Open stops (red)
-    for i, s in enumerate(open_stops):
-        plt.scatter(
-            s["x"], s["y"],
-            c="red",
-            marker="s",
-            s=160,
-            label="Open Stop" if i == 0 else ""
-        )
-
-    # Customers (blue)
-    for i, c in enumerate(customers):
-        plt.scatter(
-            c["x"], c["y"],
-            c="blue",
-            s=40,
-            label="Customer" if i == 0 else ""
-        )
-
-    # Assignment lines
-    for c, s in assignments:
-        plt.plot(
-            [c["x"], s["x"]],
-            [c["y"], s["y"]],
-            c="green",
-            alpha=0.4
-        )
-
-    # Layout improvements
-    plt.title("GA Stop Selection + Greedy Assignment")
-    plt.legend()
-    plt.grid(True)
-    plt.axis("equal")
-
-    plt.show()
-
 def plot_solution_compare(customers, stops,
                           ga_open, ga_assign,
-                          rb_open, rb_assign):
+                          rsb_open, rsb_assign):
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
 
-    # LEFT: GA
+    # LEFT: RANDOM
     ax = axes[0]
+    ax.set_title("Random Selection Baseline")
+
+    for i, s in enumerate(stops):
+        ax.scatter(s["x"], s["y"], c="gray", marker="s", s=80)
+
+    for s in rsb_open:
+        ax.scatter(s["x"], s["y"], c="red", marker="s", s=160)
+
+    for c in customers:
+        ax.scatter(c["x"], c["y"], c="blue", s=40)
+
+    for c, s in rsb_assign:
+        ax.plot([c["x"], s["x"]], [c["y"], s["y"]], c="green", alpha=0.4)
+
+    ax.grid(True)
+    ax.axis("equal")
+
+    # RIGHT: GA
+    ax = axes[1]
     ax.set_title("GA Solution")
 
     for i, s in enumerate(stops):
@@ -88,29 +57,10 @@ def plot_solution_compare(customers, stops,
     ax.grid(True)
     ax.axis("equal")
 
-    # RIGHT: RANDOM
-    ax = axes[1]
-    ax.set_title("Random Baseline")
-
-    for i, s in enumerate(stops):
-        ax.scatter(s["x"], s["y"], c="gray", marker="s", s=80)
-
-    for s in rb_open:
-        ax.scatter(s["x"], s["y"], c="red", marker="s", s=160)
-
-    for c in customers:
-        ax.scatter(c["x"], c["y"], c="blue", s=40)
-
-    for c, s in rb_assign:
-        ax.plot([c["x"], s["x"]], [c["y"], s["y"]], c="green", alpha=0.4)
-
-    ax.grid(True)
-    ax.axis("equal")
-
     plt.tight_layout()
     plt.show()
 
-def plot_all_aco_routes(customers, stops, aco_results, depot_route, chrom):
+def plot_all_routes(customers, stops, results, depot_route, chrom, plotTitle):
 
     plt.figure(figsize=(12, 8))
 
@@ -145,7 +95,7 @@ def plot_all_aco_routes(customers, stops, aco_results, depot_route, chrom):
     # UAV ROUTES (ACO)
     colors = ["orange", "green", "purple", "brown", "pink", "cyan"]
 
-    for i, (stop_id, data) in enumerate(aco_results.items()):
+    for i, (stop_id, data) in enumerate(results.items()):
 
         color = colors[i % len(colors)]
         node_list = data["nodes"]
@@ -216,7 +166,7 @@ def plot_all_aco_routes(customers, stops, aco_results, depot_route, chrom):
         plt.scatter(dx[0], dy[0], c="black", s=10, marker="*", label="Start Depot")
 
     # FINAL STYLE
-    plt.title("Hybrid GA + ACO: Truck Depot Routing + UAV Routing")
+    plt.title(plotTitle)
     plt.grid(True)
     plt.axis("equal")
     plt.legend()

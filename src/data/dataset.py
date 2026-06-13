@@ -1,6 +1,6 @@
 import random
 
-def generate_random_dataset(num_customers, num_stops,
+def generate_random_dataset(num_customers, num_stops, truckV, UAVV,
                              seed=None):
 
     if seed is not None:
@@ -15,7 +15,6 @@ def generate_random_dataset(num_customers, num_stops,
         (2000, 8000),
         (8000, 8000),
         (5000, 5000),
-        (5000, 8500),
     ]
 
     cid = 0
@@ -46,6 +45,7 @@ def generate_random_dataset(num_customers, num_stops,
         })
 
     Qmax = 15
-    V = 4
+    truck_V = truckV * 100 / 60
+    UAV_V = UAVV * 100 / 60
 
-    return customers, stops, Qmax, V
+    return customers, stops, Qmax, truck_V, UAV_V

@@ -1,8 +1,7 @@
 import random
 from evaluator import Evaluator
 
-
-class RandomBaseline:
+class RandomSelectionBaseline:
 
     def __init__(self, customers, stops, customer_stop_matrix):
         self.customers = customers
@@ -13,7 +12,7 @@ class RandomBaseline:
     def random_solution(self):
         return [random.randint(0, 1) for _ in self.stops]
 
-    def run(self, iterations=100):
+    def run(self, iterations=100000):
 
         best_solution = None
         best_cost = float("inf")
