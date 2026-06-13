@@ -45,7 +45,7 @@ def generate_random_dataset(num_customers, num_stops, truckV, UAVV,
         })
 
     Qmax = 15
-    truck_V = truckV * 100 / 60
-    UAV_V = UAVV * 100 / 60
+    truck_V = truckV * 100
+    UAV_V = UAVV * 100
 
     return customers, stops, Qmax, truck_V, UAV_V

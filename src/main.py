@@ -6,7 +6,7 @@ from aco_only import ACOOnly
 from depot_aco import DepotACO
 from helper import build_clusters, build_distance_matrix_np, build_customer_stop_matrix
 from data.dataset import generate_random_dataset
-from visualization import plot_convergence, plot_solution_compare, plot_all_routes
+from visualization import plot_convergence, plot_solution_compare, plot_all_routes, plot_bar_comparison
 
 def run_experiment(name, customers, stops, Qmax, truck_V, UAV_V):
     print("\n======================")
@@ -18,11 +18,13 @@ def run_experiment(name, customers, stops, Qmax, truck_V, UAV_V):
     rsb = RandomSelectionBaseline(customers, stops, customer_stop_matrix)
 
     rsb_solution, rsb_cost, rsb_open, rsb_assign, rsb_hist = rsb.run(min(100000, 10 * len(customers) * len(stops)))
+    rsb_cost = round(rsb_cost, 2)
     print("RSB solution:", rsb_solution)
     print("RSB cost:", rsb_cost)
 
     ga = GAOnly(customers, stops, customer_stop_matrix)
     ga_best_solution, ga_best_cost, ga_open_stops, ga_assignments, ga_best_history = ga.run(max(50, min(200, 10 * len(stops))))
+    ga_best_cost = round(ga_best_cost, 2)
 
     print("Best solution:", ga_best_solution)
     print("Best cost:", ga_best_cost)
@@ -43,21 +45,25 @@ def run_experiment(name, customers, stops, Qmax, truck_V, UAV_V):
     
     trdb = RandomDepotBaseline(rsb_open, rsb_depot_matrix, truck_V)
     trdb_truck_depot_route, trdb_truck_cost = trdb.run((len(rsb_open) ** 2) * 10)
+    trdb_truck_cost /= truck_V  # convert to time
     print("TRDB Truck route:", trdb_truck_depot_route)
     print("TRDB Truck route cost:", trdb_truck_cost)
 
     random_aco = DepotACO(rsb_open, rsb_depot_matrix, truck_V)
     random_aco_truck_depot_route, random_aco_truck_cost = random_aco.run()
+    random_aco_truck_cost /= truck_V  # convert to time
     print("Random ACO Truck route:", random_aco_truck_depot_route)
     print("Random ACO Truck route cost:", random_aco_truck_cost)
 
     ga_rdb = RandomDepotBaseline(ga_depots, ga_depot_matrix, truck_V)
     ga_rdb_truck_depot_route, ga_rdb_truck_cost = ga_rdb.run((len(ga_depots) ** 2) * 10)
+    ga_rdb_truck_cost /= truck_V  # convert to time
     print("GA RDB Truck route:", ga_rdb_truck_depot_route)
     print("GA RDB Truck route cost:", ga_rdb_truck_cost)
 
     hybrid_truck = DepotACO(ga_depots, ga_depot_matrix, truck_V)
     hybrid_truck_depot_route, hybrid_truck_cost = hybrid_truck.run()
+    hybrid_truck_cost /= truck_V  # convert to time
     print("Hybrid Truck route:", hybrid_truck_depot_route)
     print("Hybrid Truck route cost:", hybrid_truck_cost)
 
@@ -95,7 +101,10 @@ def run_experiment(name, customers, stops, Qmax, truck_V, UAV_V):
         all_trandom_customers_for_plot = customers
         trandom_total_cost += trandom_best_cost
 
-    print("Total True Random cost:", trandom_total_cost)
+    trandom_total_cost /= UAV_V  # convert to time
+    trandom_total_cost += trdb_truck_cost  # add truck time
+
+    print("Total True Random cost:", round(trandom_total_cost, 2))
     plot_all_routes(
         customers=all_trandom_customers_for_plot,
         stops=stops,
@@ -139,7 +148,10 @@ def run_experiment(name, customers, stops, Qmax, truck_V, UAV_V):
         all_random_aco_customers_for_plot = customers
         random_aco_total_cost += random_aco_best_cost
 
-    print("Total Random ACO cost:", random_aco_total_cost)
+    random_aco_total_cost /= UAV_V  # convert to time
+    random_aco_total_cost += random_aco_truck_cost  # add truck time
+
+    print("Total Random ACO cost:", round(random_aco_total_cost, 2))
     plot_all_routes(
         customers=all_random_aco_customers_for_plot,
         stops=stops,
@@ -180,7 +192,10 @@ def run_experiment(name, customers, stops, Qmax, truck_V, UAV_V):
         all_ga_random_customers_for_plot = customers
         ga_random_total_cost += ga_random_best_cost
 
-    print("Total GA Random cost:", ga_random_total_cost)
+    ga_random_total_cost /= UAV_V  # convert to time
+    ga_random_total_cost += ga_rdb_truck_cost  # add truck time
+
+    print("Total GA Random cost:", round(ga_random_total_cost, 2))
     plot_all_routes(
         customers=all_ga_random_customers_for_plot,
         stops=stops,
@@ -224,7 +239,10 @@ def run_experiment(name, customers, stops, Qmax, truck_V, UAV_V):
         all_hybrid_customers_for_plot = customers
         hybrid_total_cost += hybrid_best_cost
 
-    print("Total Hybrid cost:", hybrid_total_cost)
+    hybrid_total_cost /= UAV_V  # convert to time
+    hybrid_total_cost += hybrid_truck_cost  # add truck time
+
+    print("Total Hybrid cost:", round(hybrid_total_cost, 2))
     plot_all_routes(
         customers=all_hybrid_customers_for_plot,
         stops=stops,
@@ -232,6 +250,12 @@ def run_experiment(name, customers, stops, Qmax, truck_V, UAV_V):
         depot_route=hybrid_truck_depot_route,
         chrom=ga_best_solution,
         plotTitle="Hybrid GA + ACO: GA Clusters + ACO Routes"
+    )
+
+    plot_bar_comparison(
+        costs=[round(trandom_total_cost, 2), round(random_aco_total_cost, 2), round(ga_random_total_cost, 2), round(hybrid_total_cost, 2)],
+        labels=["True Random", "Random ACO", "GA Random", "Hybrid GA+ACO"],
+        title="Total UAV Route Cost Comparison"
     )
 
 # run all datasets

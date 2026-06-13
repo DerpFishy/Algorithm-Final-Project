@@ -171,3 +171,29 @@ def plot_all_routes(customers, stops, results, depot_route, chrom, plotTitle):
     plt.axis("equal")
     plt.legend()
     plt.show()
+
+def plot_bar_comparison(costs, labels=None, title="Result Comparison"):
+    if len(costs) != 4:
+        print("Error: Please provide exactly 4 values.")
+        return
+
+    # If no labels are provided, use default A, B, C, D
+    if labels is None:
+        labels = ['Value 1', 'Value 2', 'Value 3', 'Value 4']
+
+    # Create the plot
+    plt.figure(figsize=(8, 5))
+    bars = plt.bar(labels, costs, color=['#3498db', '#e74c3c', '#2ecc71', '#f1c40f'])
+
+    # Add details
+    plt.title(title, fontsize=14)
+    plt.ylabel('Costs')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    # Add value labels on top of each bar
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2, yval + 0.1, yval, ha='center', va='bottom')
+
+    # Show the plot
+    plt.show()
