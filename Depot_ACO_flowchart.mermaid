@@ -1,0 +1,62 @@
+flowchart LR
+
+    A([Start])
+
+    B[Initialize
+    Pheromone
+    Matrix]
+
+    C[Deploy
+    m
+    Ants]
+
+    D[Construct
+    Route]
+
+    E[Select Next
+    Depot Using
+    Transition
+    Probability]
+
+    F{All Depots
+    Visited?}
+
+    G[Compute
+    Route
+    Cost]
+
+    H[Store
+    Best
+    Route]
+
+    I[Pheromone
+    Evaporation]
+
+    J[Pheromone
+    Deposit]
+
+    K{Maximum
+    Iterations
+    Reached?}
+
+    L([Best
+    Depot
+    Route])
+
+    A --> B
+    B --> C
+    C --> D
+
+    D --> E
+    E --> F
+
+    F -- No --> E
+    F -- Yes --> G
+
+    G --> H
+    H --> I
+    I --> J
+    J --> K
+
+    K -- No --> C
+    K -- Yes --> L

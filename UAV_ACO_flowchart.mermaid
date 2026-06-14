@@ -1,0 +1,84 @@
+flowchart LR
+
+    A([Start])
+
+    B[Initialize
+    Pheromone
+    Matrix]
+
+    C[Deploy
+    m Ants]
+
+    D[Start
+    Route
+    at Depot]
+
+    E[Determine
+    Feasible
+    Customers]
+
+    F{Feasible
+    Customer
+    Exists?}
+
+    G[Select
+    Next Customer
+    Epsilon-Greedy
+    Rule]
+
+    H[Update
+    Remaining
+    Capacity]
+
+    I[Mark
+    Customer
+    Served]
+
+    J[Return
+    to Depot]
+
+    K[Compute Total
+    Route Cost]
+
+    L[Rank
+    Solutions]
+
+    M[Pheromone
+    Evaporation]
+
+    N[Elite
+    Pheromone
+    Deposit
+    Top 20
+    Percent]
+
+    O{Maximum
+    Iterations
+    Reached?}
+
+    P([Best
+    UAV
+    Routes])
+
+    A --> B
+    B --> C
+    C --> D
+
+    D --> E
+    E --> F
+
+    F -- Yes --> G
+    G --> H
+    H --> I
+    I --> E
+
+    F -- No --> J
+    J --> K
+    K --> L
+
+    L --> M
+    M --> N
+    N --> O
+
+    O -- No --> C
+    O -- Yes --> P
