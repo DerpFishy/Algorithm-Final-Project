@@ -40,7 +40,7 @@ $$F(\mathbf{x}) = \alpha \sqrt{\sum_{j \in S} x_j}$$
 ### C. Unused Open Stop Penalty $P(\mathbf{x})$
 Let $U(\mathbf{x})$ define the set of open stops that fail to capture any customer assignments (i.e., they are open but are never the closest stop for any customer):
 
-$$U(\mathbf{x}) = \left\{ j \in S \;\middle|\; x_j = 1 \;\land\; \forall i \in C, \, j \neq \arg\min_{k \in S: x_k = 1} d_{ik} \right\}$$
+$$U(\mathbf{x}) = \{ j \in S \mid x_j = 1 \land \forall i \in C,\; j \ne \arg\min_{k \in S,\; x_k = 1} d_{ik} \}$$
 
 A constant penalty of $5.0$ is levied on each wasteful, unused stop:
 
