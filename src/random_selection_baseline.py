@@ -12,7 +12,7 @@ class RandomSelectionBaseline:
     def random_solution(self):
         return [random.randint(0, 1) for _ in self.stops]
 
-    def run(self, iterations=100000):
+    def run(self, iterations):
 
         best_solution = None
         best_cost = float("inf")

@@ -10,42 +10,60 @@ def generate_random_dataset(num_customers, num_stops, truckV, UAVV,
     stops = []
 
     districts = [
-        (2000, 2000),
-        (8000, 2000),
-        (2000, 8000),
-        (8000, 8000),
-        (5000, 5000),
+        (3, 3),
+        (3, 12),
+        (7.5, 7.5),
+        (12, 12),
+        (12, 3)
     ]
 
     cid = 0
 
-    # ~30 customers per district
+    # customers per district
     for cx, cy in districts:
 
         for _ in range(num_customers // len(districts)):
 
             customers.append({
                 "id": cid,
-                "x": max(0, min(10000, int(random.gauss(cx, 700)))),
-                "y": max(0, min(10000, int(random.gauss(cy, 700)))),
+                "x": max(0, min(15, round(random.gauss(cx, 1), 3))),
+                "y": max(0, min(15, round(random.gauss(cy, 1), 3))),
                 "q": random.randint(1, 5)
             })
 
             cid += 1
 
-    customers[0]["q"] = 0
-
     # candidate stops
-    for sid in range(num_stops):
+    sid = 0
+    for sx, sy in districts:
 
-        stops.append({
-            "id": sid,
-            "x": random.randint(0, 10000),
-            "y": random.randint(0, 10000)
-        })
+        for _ in range(num_stops // len(districts)):
+
+            stops.append({
+                "id": sid,
+                "x": max(0, min(15, round(random.gauss(sx, 3), 3))),
+                "y": max(0, min(15, round(random.gauss(sy, 3), 3)))
+            })
+
+            sid += 1
+
+    # for cid in range(num_customers):
+    #     customers.append({
+    #         "id": cid,
+    #         "x": max(0, min(15, round(random.uniform(0, 15), 3))),
+    #         "y": max(0, min(15, round(random.uniform(0, 15), 3))),
+    #         "q": random.randint(1, 5)
+    #     })
+
+    # for sid in range(num_stops):
+    #     stops.append({
+    #         "id": sid,
+    #         "x": max(0, min(15, round(random.uniform(0, 15), 3))),
+    #         "y": max(0, min(15, round(random.uniform(0, 15), 3)))
+    #     })
 
     Qmax = 15
-    truck_V = truckV * 100
-    UAV_V = UAVV * 100
+    truck_V = truckV
+    UAV_V = UAVV
 
     return customers, stops, Qmax, truck_V, UAV_V

@@ -17,13 +17,13 @@ def run_experiment(name, customers, stops, Qmax, truck_V, UAV_V):
 
     rsb = RandomSelectionBaseline(customers, stops, customer_stop_matrix)
 
-    rsb_solution, rsb_cost, rsb_open, rsb_assign, rsb_hist = rsb.run(min(100000, 10 * len(customers) * len(stops)))
+    rsb_solution, rsb_cost, rsb_open, rsb_assign, rsb_hist = rsb.run(min(100000, 15 * len(customers) * len(stops)))
     rsb_cost = round(rsb_cost, 2)
     print("RSB solution:", rsb_solution)
     print("RSB cost:", rsb_cost)
 
     ga = GAOnly(customers, stops, customer_stop_matrix)
-    ga_best_solution, ga_best_cost, ga_open_stops, ga_assignments, ga_best_history = ga.run(max(50, min(200, 10 * len(stops))))
+    ga_best_solution, ga_best_cost, ga_open_stops, ga_assignments, ga_best_history = ga.run(min(400, 15 * len(stops)))
     ga_best_cost = round(ga_best_cost, 2)
 
     print("Best solution:", ga_best_solution)
@@ -254,13 +254,13 @@ def run_experiment(name, customers, stops, Qmax, truck_V, UAV_V):
 
     plot_bar_comparison(
         costs=[round(trandom_total_cost, 2), round(random_aco_total_cost, 2), round(ga_random_total_cost, 2), round(hybrid_total_cost, 2)],
-        labels=["True Random", "Random ACO", "GA Random", "Hybrid GA+ACO"],
+        labels=["True Random", "Random + ACO", "GA + Random", "Hybrid GA+ACO"],
         title="Total UAV Route Cost Comparison"
     )
 
 # run all datasets
 datasets = [
-    ("Random Dataset 1", *generate_random_dataset(num_customers=100, num_stops=25, truckV=120, UAVV=50, seed = 1)),
+    ("Random Dataset 1", *generate_random_dataset(num_customers=200, num_stops=25, truckV=100, UAVV=50, seed = 42)),
     # ("Random Dataset 2", *generate_random_dataset(num_customers=200, num_stops=25, truckV=120, UAVV=50, seed = 2)),
     # ("Random Dataset 3", *generate_random_dataset(num_customers=200, num_stops=40, truckV=120, UAVV=50, seed = 3)),
     # ("Random Dataset 4", *generate_random_dataset(num_customers=200, num_stops=55, truckV=120, UAVV=50, seed = 4)),

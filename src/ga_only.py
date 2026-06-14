@@ -4,15 +4,15 @@ from evaluator import Evaluator
 
 class GAOnly:
 
-    def __init__(self, customers, stops, customer_stop_matrix, elite_size=2):
+    def __init__(self, customers, stops, customer_stop_matrix):
         self.customers = customers
         self.stops = stops
         self.customer_stop_matrix = customer_stop_matrix
         self.pop_size = max(30, min(500, 10 * len(stops)))
-        self.elite_size = elite_size
+        self.elite_size = max(2, self.pop_size // 10)
 
         # stronger constraint pressure
-        self.evaluator = Evaluator(stops, customers, customer_stop_matrix, alpha=1500.0)
+        self.evaluator = Evaluator(stops, customers, customer_stop_matrix)
 
     # INIT
     def random_chromosome(self):

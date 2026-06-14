@@ -8,8 +8,8 @@ class Evaluator:
         stops,
         customers,
         customer_stop_matrix,
-        max_distance=500,
-        alpha=1500.0
+        max_distance=1,
+        alpha=1
     ):
         self.stops = stops
         self.customers = customers
@@ -57,7 +57,7 @@ class Evaluator:
         used_global = set(open_indices[i] for i in used)
 
         unused_open = len(open_indices) - len(used_global)
-        unused_penalty = 1500.0 * unused_open
+        unused_penalty = 5.0 * unused_open
 
         return total_distance + facility_cost + unused_penalty
 
