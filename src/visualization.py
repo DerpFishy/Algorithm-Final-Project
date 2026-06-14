@@ -12,6 +12,28 @@ def plot_convergence(best_history):
     plt.grid(True)
     plt.show()
 
+def plot_bar_compare(name1, value1, name2, value2, nameY, title):
+    bars = plt.bar(
+        [name1, name2],
+        [value1, value2],
+        color=['#3498db', '#e74c3c']
+    )
+
+    plt.ylabel(nameY)
+    plt.title(title)
+
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(
+            bar.get_x() + bar.get_width()/2,
+            height,
+            f"{height:.2f}",
+            ha="center",
+            va="bottom"
+        )
+
+    plt.show()
+
 def plot_solution_compare(customers, stops,
                           ga_open, ga_assign,
                           rsb_open, rsb_assign):
@@ -193,7 +215,7 @@ def plot_bar_comparison(costs, labels=None, title="Result Comparison"):
     # Add value labels on top of each bar
     for bar in bars:
         yval = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width()/2, yval + 0.1, yval, ha='center', va='bottom')
+        plt.text(bar.get_x() + bar.get_width()/2, yval + .05, yval, ha='center', va='bottom')
 
     # Show the plot
     plt.show()
