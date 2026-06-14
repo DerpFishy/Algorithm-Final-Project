@@ -305,11 +305,87 @@ def benchmark(datasets):
     assignment_mean(results)
     statistical_analysis(results)
 
-# run all datasets
-datasets = [
-    ("Test Dataset", *generate_random_dataset(num_customers=200, num_stops=25, truckV=100, UAVV=50, seed = 42))
-]
+datasets = []
 
+# # run test datasets
+# datasets = [
+#     ("Test Dataset", *generate_random_dataset(num_customers=200, num_stops=25, truckV=100, UAVV=50, seed = 42))
+# ]
+
+# # correctness test dataset
+# datasets = [
+# # =========================
+# # Dataset 1: Cluster + Scatter Mix
+# # =========================
+# ("Dataset 1: Mixed Clusters",
+#  [
+#      {"id": 0, "x": 1.2, "y": 2.8, "q": 3},
+#      {"id": 1, "x": 2.0, "y": 1.5, "q": 4},
+#      {"id": 2, "x": 2.8, "y": 3.2, "q": 2},
+#      {"id": 3, "x": 4.5, "y": 4.0, "q": 5},
+#      {"id": 4, "x": 5.2, "y": 5.8, "q": 3},
+
+#      {"id": 5, "x": 10.5, "y": 2.2, "q": 4},
+#      {"id": 6, "x": 11.8, "y": 3.5, "q": 2},
+#      {"id": 7, "x": 12.2, "y": 1.8, "q": 3},
+
+#      {"id": 8, "x": 7.0, "y": 9.5, "q": 4},
+#      {"id": 9, "x": 8.5, "y": 10.2, "q": 2},
+#  ],
+#  [
+#      {"id": 0, "x": 2.0, "y": 2.0},
+#      {"id": 1, "x": 11.0, "y": 2.5},
+#      {"id": 2, "x": 8.0, "y": 9.5},
+#  ],
+#  15, 100, 50),
+# # =========================
+# # Dataset 2: Circular / Radial Spread (no linear patterns)
+# # =========================
+# ("Dataset 2: Radial Spread",
+#  [
+#      {"id": 0, "x": 7.5, "y": 2.0, "q": 3},
+#      {"id": 1, "x": 10.5, "y": 3.5, "q": 4},
+#      {"id": 2, "x": 12.0, "y": 7.5, "q": 2},
+#      {"id": 3, "x": 10.0, "y": 11.0, "q": 3},
+#      {"id": 4, "x": 7.5, "y": 13.0, "q": 5},
+
+#      {"id": 5, "x": 4.0, "y": 11.5, "q": 2},
+#      {"id": 6, "x": 3.0, "y": 7.0, "q": 3},
+#      {"id": 7, "x": 4.5, "y": 3.5, "q": 4},
+
+#      {"id": 8, "x": 6.0, "y": 6.0, "q": 2},
+#      {"id": 9, "x": 9.0, "y": 9.0, "q": 3},
+#  ],
+#  [
+#      {"id": 0, "x": 7.5, "y": 7.5},
+#      {"id": 1, "x": 2.5, "y": 2.5},
+#      {"id": 2, "x": 12.5, "y": 12.5},
+#  ],
+#  15, 100, 50),
+# # =========================
+# # Dataset 3: Random Balanced (good stress test)
+# # =========================
+# ("Dataset 3: Random Balanced Field",
+#  [
+#      {"id": 0, "x": 1.5, "y": 12.5, "q": 2},
+#      {"id": 1, "x": 2.8, "y": 9.2, "q": 4},
+#      {"id": 2, "x": 3.5, "y": 5.5, "q": 3},
+#      {"id": 3, "x": 5.0, "y": 2.5, "q": 5},
+#      {"id": 4, "x": 6.5, "y": 10.5, "q": 2},
+
+#      {"id": 5, "x": 8.0, "y": 8.0, "q": 3},
+#      {"id": 6, "x": 9.5, "y": 6.5, "q": 4},
+#      {"id": 7, "x": 11.0, "y": 3.0, "q": 2},
+#      {"id": 8, "x": 12.5, "y": 11.5, "q": 3},
+#      {"id": 9, "x": 13.5, "y": 7.5, "q": 2},
+#  ],
+#  [
+#      {"id": 0, "x": 2.0, "y": 12.0},
+#      {"id": 1, "x": 7.5, "y": 7.5},
+#      {"id": 2, "x": 12.5, "y": 2.5},
+#  ],
+#  15, 100, 50),
+# ]
 
 for name, customers, stops, Qmax, truck_V, UAV_V in datasets:
     run_experiment(name, customers, stops, Qmax, truck_V, UAV_V, visualize=True)

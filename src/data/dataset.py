@@ -47,21 +47,6 @@ def generate_random_dataset(num_customers, num_stops, truckV, UAVV,
 
             sid += 1
 
-    # for cid in range(num_customers):
-    #     customers.append({
-    #         "id": cid,
-    #         "x": max(0, min(15, round(random.uniform(0, 15), 3))),
-    #         "y": max(0, min(15, round(random.uniform(0, 15), 3))),
-    #         "q": random.randint(1, 5)
-    #     })
-
-    # for sid in range(num_stops):
-    #     stops.append({
-    #         "id": sid,
-    #         "x": max(0, min(15, round(random.uniform(0, 15), 3))),
-    #         "y": max(0, min(15, round(random.uniform(0, 15), 3)))
-    #     })
-
     Qmax = 15
     truck_V = truckV
     UAV_V = UAVV
