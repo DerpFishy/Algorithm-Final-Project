@@ -49,3 +49,24 @@ def statistical_analysis(results):
             print("Result: Significant")
         else:
             print("Result: Not Significant")
+
+    plt.figure(figsize=(8, 6))
+
+    # Combine all 4 data streams into a list of lists
+    data_to_plot = [
+        [res["true_random"] for res in results],
+        [res["ga_random"] for res in results],
+        [res["random_aco"] for res in results],
+        [res["hybrid"] for res in results]
+    ]
+
+    # Create the boxplot
+    plt.boxplot(data_to_plot, tick_labels=["True Random", "GA Random", "Random ACO", "Hybrid"])
+
+    # Add styling
+    plt.title("Distribution of Total Costs Across 30 Runs", fontsize=14, fontweight='bold')
+    plt.ylabel("Total Cost", fontsize=12)
+    plt.grid(axis='y', linestyle='--', alpha=0.5)
+
+    # Optional: Highlight your winning algorithm's background or box if you want to be fancy
+    plt.show()

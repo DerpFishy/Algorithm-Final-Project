@@ -282,7 +282,7 @@ def run_experiment(name, customers, stops, Qmax, truck_V, UAV_V, visualize=True)
         plot_bar_comparison(
             costs=[round(trandom_total_cost, 2), round(random_aco_total_cost, 2), round(ga_random_total_cost, 2), round(hybrid_total_cost, 2)],
             labels=["True Random", "Random + ACO", "GA + Random", "Hybrid GA+ACO"],
-            title="Total UAV Route Cost Comparison"
+            title="Total Time Comparison"
         )
     
     return {
@@ -314,7 +314,7 @@ datasets = [
 for name, customers, stops, Qmax, truck_V, UAV_V in datasets:
     run_experiment(name, customers, stops, Qmax, truck_V, UAV_V, visualize=True)
 
-# run benchmark for stats for 30 runs
+# # run benchmark for stats for 30 runs
 # datasets = []
 # for i in range(30):
 #     dataset = (f"Random Dataset {i}", *generate_random_dataset(num_customers=200, num_stops=25, truckV=100, UAVV=50, seed=i))
