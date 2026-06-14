@@ -30,7 +30,7 @@ $$\text{DistancePenalty}(d) = \begin{cases} 0 & \text{if } d \le D_{\max} \\ 10 
 
 The total service cost $T(\mathbf{x})$ is the arithmetic mean of the penalized distances across all customers:
 
-$$T(\mathbf{x}) = \frac{1}{|C|} \sum_{i \in C} \left( d^{*}_{i}(\mathbf{x}) + \text{DistancePenalty}\big(d^{*}_{i}(\mathbf{x})\big) \right)$$
+$$T(\mathbf{x}) = \frac{1}{|C|} \sum_{i \in C} ( d^{*}_{i}(\mathbf{x}) + \text{DistancePenalty}(d^{*}_{i}(\mathbf{x})) )$$
 
 ### B. Facility Cost $F(\mathbf{x})$
 The structural cost of opening facilities scales sub-linearly with respect to the total number of open stops, governed by a control parameter $\alpha$ (where $\alpha = 1$):
