@@ -6,7 +6,7 @@ from aco_only import ACOOnly
 from depot_aco import DepotACO
 from helper import build_clusters, build_distance_matrix_np, build_customer_stop_matrix
 from data.dataset import generate_random_dataset
-from visualization import plot_convergence, plot_solution_compare, plot_bar_compare, plot_all_routes, plot_bar_comparison
+from visualization import plot_convergence, plot_dataset, plot_ga_solution, plot_solution_compare, plot_bar_compare, plot_all_routes, plot_bar_comparison
 from statistic import assignment_mean, statistical_analysis
 
 def run_experiment(name, customers, stops, Qmax, truck_V, UAV_V, visualize=True):
@@ -15,6 +15,9 @@ def run_experiment(name, customers, stops, Qmax, truck_V, UAV_V, visualize=True)
     print("======================")
 
     customer_stop_matrix = build_customer_stop_matrix(customers, stops)
+
+    if visualize:
+        plot_dataset(customers=customers, stops=stops)
 
     rsb = RandomSelectionBaseline(customers, stops, customer_stop_matrix)
 
@@ -41,6 +44,12 @@ def run_experiment(name, customers, stops, Qmax, truck_V, UAV_V, visualize=True)
             value2=ga_best_cost,
             nameY="Assignment Cost",
             title="RSB vs GA")
+        plot_ga_solution(
+            customers=customers,
+            stops=stops,
+            ga_open=ga_open_stops,
+            ga_assign=ga_assignments
+        )
         plot_solution_compare(
             customers=customers,
             stops=stops,

@@ -34,6 +34,62 @@ def plot_bar_compare(name1, value1, name2, value2, nameY, title):
 
     plt.show()
 
+def plot_dataset(customers, stops):
+    plt.figure(figsize=(7, 6))
+    ax = plt.gca()
+
+    ax.set_title("Dataset")
+
+    # All stops
+    for i, s in enumerate(stops):
+        ax.scatter(s["x"], s["y"], c="gray", marker="s", s=160,
+                   label="Stop" if i == 0 else "")
+
+    # All Customers
+    for i, c in enumerate(customers):
+        ax.scatter(c["x"], c["y"], c="blue", s=40,
+                   label="Customer" if i == 0 else "")
+
+    ax.grid(True)
+    ax.axis("equal")
+    ax.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+def plot_ga_solution(customers, stops, ga_open, ga_assign):
+    plt.figure(figsize=(7, 6))
+    ax = plt.gca()
+
+    ax.set_title("GA Solution")
+
+    # All stops (background)
+    for i, s in enumerate(stops):
+        ax.scatter(s["x"], s["y"], c="gray", marker="s", s=80,
+                   label="Stop" if i == 0 else "")
+
+    # Open GA-selected stops
+    for i, s in enumerate(ga_open):
+        ax.scatter(s["x"], s["y"], c="red", marker="s", s=160,
+                   label="Open Stop" if i == 0 else "")
+
+    # Customers
+    for i, c in enumerate(customers):
+        ax.scatter(c["x"], c["y"], c="blue", s=40,
+                   label="Customer" if i == 0 else "")
+
+    # Assignments (edges)
+    for c, s in ga_assign:
+        ax.plot([c["x"], s["x"]], [c["y"], s["y"]],
+                c="green", alpha=0.4)
+
+    ax.grid(True)
+    ax.axis("equal")
+    ax.legend()
+
+    plt.tight_layout()
+    plt.show()
+
 def plot_solution_compare(customers, stops,
                           ga_open, ga_assign,
                           rsb_open, rsb_assign):
