@@ -33,15 +33,7 @@ Where individual sub-components are defined as:
 * **Facility Configuration Cost $F(\mathbf{x})$:**
   $$F(\mathbf{x}) = \alpha \sqrt{\sum_{j \in S} x_j}$$
 * **Unused Open Stop Penalty $P(\mathbf{x})$:** Let $U(\mathbf{x})$ define open stops failing to capture customer assignments:
-  $$
-  U(\mathbf{x}) =
-  \{\, j \in S \mid
-  x_j = 1
-  \land
-  \forall i \in C,\;
-  j \neq \arg\min_{k \in S:\, x_k = 1} d_{ik}
-  \,\}
-  $$
+  $$U(\mathbf{x}) = \{\, j \in S \mid x_j = 1 \land \forall i \in C,\;mj \neq \arg\min_{k \in S:\, x_k = 1} d_{ik}m\,\}$$
   $$P(\mathbf{x}) = 5.0 \cdot |U(\mathbf{x})|$$
 
 ---
