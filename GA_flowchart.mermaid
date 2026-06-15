@@ -1,70 +1,26 @@
+%%{init: {'flowchart': {'nodeSpacing': 60, 'rankSpacing': 80}}}%%
 flowchart LR
 
     A([Start])
 
-    B["Generate
-    Initial
-    Population"]
+    A --> B["Generate<br/>Initial Population"]
+    B --> C["Evaluate Fitness<br/>Distance Cost + Facility Cost + Unused Stop Penalty"]
 
-    C["Evaluate Fitness
-    Distance Cost +
-    Facility Cost +
-    Unused Stop
-    Penalty"]
+    C --> D{"Stopping<br/>Criterion<br/>Reached?"}
 
-    D{"Stopping
-    Criterion
-    Reached?"}
+    D -- No --> E["Tournament Selection<br/>Choose Best of 5"]
 
-    E["Tournament
-    Selection
-    Choose
-    Best of 5"]
+    E --> F["Uniform Crossover<br/>Create Offspring"]
+    F --> G["Mutation<br/>Rate = 0.3"]
 
-    F["Uniform
-    Crossover
-    Create
-    Offspring"]
+    G --> H{"At Least One<br/>Stop Open?"}
 
-    G["Mutation
-    Mutation
-    Rate = 0.3"]
-
-    H{"At Least
-    One
-    StopOpen?"}
-
-    I["Randomly
-    Open
-    One
-    Stop"]
-
-    J["Evaluate
-    Offspring
-    Fitness"]
-
-    K["Create
-    Next
-    Generation"]
-
-    L([Best Stop
-    Configuration])
-
-    A --> B
-    B --> C
-    C --> D
-
-    D -- No --> E
-    E --> F
-    F --> G
-    G --> H
-
-    H -- No --> I
-    H -- Yes --> J
+    H -- No --> I["Randomly Open<br/>One Stop"]
+    H -- Yes --> J["Evaluate Offspring<br/>Fitness"]
 
     I --> J
 
-    J --> K
+    J --> K["Create<br/>Next<br/>Generation"]
     K --> C
 
-    D -- Yes --> L
+    D -- Yes --> L([Best Stop Configuration])

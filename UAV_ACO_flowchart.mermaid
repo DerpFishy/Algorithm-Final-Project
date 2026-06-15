@@ -2,83 +2,31 @@ flowchart LR
 
     A([Start])
 
-    B[Initialize
-    Pheromone
-    Matrix]
+    A --> B[Initialize<br/>Pheromone<br/>Matrix]
+    B --> C[Deploy<br/>m Ants]
 
-    C[Deploy
-    m Ants]
+    C --> D[Start<br/>Route<br/>at Depot]
 
-    D[Start
-    Route
-    at Depot]
+    D --> E[Determine<br/>Feasible<br/>Customers]
 
-    E[Determine
-    Feasible
-    Customers]
+    E --> F{Feasible<br/>Customer<br/>Exists?}
 
-    F{Feasible
-    Customer
-    Exists?}
+    F -- Yes --> G[Select<br/>Next Customer<br/>Epsilon-Greedy Rule]
 
-    G[Select
-    Next Customer
-    Epsilon-Greedy
-    Rule]
-
-    H[Update
-    Remaining
-    Capacity]
-
-    I[Mark
-    Customer
-    Served]
-
-    J[Return
-    to Depot]
-
-    K[Compute Total
-    Route Cost]
-
-    L[Rank
-    Solutions]
-
-    M[Pheromone
-    Evaporation]
-
-    N[Elite
-    Pheromone
-    Deposit
-    Top 20
-    Percent]
-
-    O{Maximum
-    Iterations
-    Reached?}
-
-    P([Best
-    UAV
-    Routes])
-
-    A --> B
-    B --> C
-    C --> D
-
-    D --> E
-    E --> F
-
-    F -- Yes --> G
-    G --> H
-    H --> I
+    G --> H[Update<br/>Remaining Capacity]
+    H --> I[Mark<br/>Customer Served]
     I --> E
 
-    F -- No --> J
-    J --> K
-    K --> L
+    F -- No --> J[Return<br/>to Depot]
 
-    L --> M
-    M --> N
-    N --> O
+    J --> K[Compute Total<br/>Route Cost]
+    K --> L[Rank<br/>Solutions]
+
+    L --> M[Pheromone<br/>Evaporation]
+
+    M --> N[Elite Pheromone<br/>Deposit<br/>Top 20%]
+
+    N --> O{Maximum<br/>Iterations<br/>Reached?}
 
     O -- No --> C
-    O -- Yes --> P
+    O -- Yes --> P([Best UAV Routes])
